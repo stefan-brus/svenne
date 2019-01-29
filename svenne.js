@@ -1,19 +1,29 @@
 const { RTMClient } = require('@slack/client');
 
-// An access token (from your Slack app or custom integration - usually xoxb)
+// TODO: Read from file
 const token = 'bluff';
 
-// The client is initialized and then started to get an active connection to the platform
+const bot_user_id = 'UFTAL8WH4';
+
+// Connect to slack
 const rtm = new RTMClient(token);
 rtm.start();
 
-// This argument can be a channel ID, a DM ID, a MPDM ID, or a group ID
-const conversationId = 'CER5J71LY';
+rtm.on('message', (message) => {
+    // Skip messages from myself
+    if(message.user === bot_user_id) {
+        return;
+    }
 
-// The RTM client can send simple string messages
-rtm.sendMessage('börk börk', conversationId)
-  .then((res) => {
-    // `res` contains information about the posted message
-    console.log('Message sent: ', res.ts);
-  })
-  .catch(console.error);
+    // Respond to messages mentioning me
+    if(message.text.includes(`<@${bot_user_id}>`)) {
+        rtm.sendMessage('börk börk', message.channel)
+            .then((res) => {
+                console.log('Message sent: ', res.ts);
+            })
+            .catch(console.error);
+    }
+
+    // Log the message
+    console.log(`[${message.ts}] (channel:${message.channel}) ${message.user} says: ${message.text}`);
+});
