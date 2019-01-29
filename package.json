@@ -1,0 +1,15 @@
+{
+  "name": "svenne",
+  "version": "0.1.0",
+  "description": "svenne is a slack bot",
+  "main": "svenne.js",
+  "scripts": {
+    "start": "node svenne.js",
+    "test": "echo TODO Tests"
+  },
+  "author": "Stefan Brus",
+  "license": "Beerware",
+  "dependencies": {
+    "@slack/client": "^4.8.0"
+  }
+}
