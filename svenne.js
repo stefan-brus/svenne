@@ -32,7 +32,8 @@ rtm.on('message', (message) => {
     }
 
     // Respond to messages mentioning me
-    if(message.text.includes(`<@${botUserId}>`)) {
+    if(typeof(message.text) !== 'undefined' &&
+       message.text.includes(`<@${botUserId}>`)) {
         rtm.sendMessage('börk börk', message.channel)
             .then((res) => {
                 console.log('Message sent: ', res.ts);
