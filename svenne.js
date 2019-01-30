@@ -18,12 +18,18 @@ const { RTMClient } = require('@slack/client');
 
 const argv = require('yargs').argv;
 
+const Phrasebook = require('./phrasebook.js');
+
 const token = argv.token;
 const botUserId = argv.botuser;
 
 // Connect to slack
 const rtm = new RTMClient(token);
 rtm.start();
+
+// Set up phrasebook
+const pb = new Phrasebook(3);
+const maxPhraseLength = 20;
 
 rtm.on('message', (message) => {
     // Skip messages from myself
@@ -34,7 +40,8 @@ rtm.on('message', (message) => {
     // Respond to messages mentioning me
     if(typeof(message.text) !== 'undefined' &&
        message.text.includes(`<@${botUserId}>`)) {
-        rtm.sendMessage('börk börk', message.channel)
+        pb.learn(message.text);
+        rtm.sendMessage(pb.generate(maxPhraseLength), message.channel)
             .then((res) => {
                 console.log('Message sent: ', res.ts);
             })
