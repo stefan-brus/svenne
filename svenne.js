@@ -32,22 +32,27 @@ const pb = new Phrasebook(3);
 const maxPhraseLength = 20;
 
 rtm.on('message', (message) => {
+    // Log the message
+    console.log(`[${message.ts}] (channel:${message.channel}) ${message.user} says: ${message.text}`);
+
     // Skip messages from myself
     if(message.user === botUserId) {
         return;
     }
 
-    // Respond to messages mentioning me
-    if(typeof(message.text) !== 'undefined' &&
-       message.text.includes(`<@${botUserId}>`)) {
-        pb.learn(message.text);
-        rtm.sendMessage(pb.generate(maxPhraseLength), message.channel)
-            .then((res) => {
-                console.log('Message sent: ', res.ts);
-            })
-            .catch(console.error);
-    }
+    // Learn and respond to messages
+    if(typeof(message.text) !== undefined && message.text !== undefined) {
+        // Put message into phrasebook, ignore bots
+        if(!message.bot_id) {
+            pb.learn(message.text);
+        }
 
-    // Log the message
-    console.log(`[${message.ts}] (channel:${message.channel}) ${message.user} says: ${message.text}`);
+        if(message.text.includes(`<@${botUserId}>`)) {
+            rtm.sendMessage(pb.generate(maxPhraseLength), message.channel)
+                .then((res) => {
+                    console.log('Message sent: ', res.ts);
+                })
+                .catch(console.error);
+        }
+    }
 });
