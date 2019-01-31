@@ -163,10 +163,17 @@ class Phrasebook {
     }
 
     /**
-     * Load the map from disk and deserialize it
+     * Load the map from disk and deserialize it.
+     *
+     * Does nothing but log a message if the file doesn't exist yet.
      */
 
     load() {
+        if(!fs.existsSync(this.file)) {
+            console.log(`No phrasebook file found, path: ${this.file}`);
+            return;
+        }
+
         fs.readFile(this.file, (err, data) => {
             if(err) {
                 console.log(`Error reading phrasebook file: ${err}`);
