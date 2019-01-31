@@ -1,10 +1,20 @@
 /**
- * Markov-ish phrasebook for generating chat responses
+ * Markov-ish phrasebook for generating chat responses.
+ *
+ * Implemented as a (de)serializable map. (De)serialization methods are
+ * currently implemented manually as there doesn't seem to be a simple way
+ * of serializing Maps containing Sets.
  *
  * Author: Stefan Brus (github.com/stefan-brus)
  * Copyright: Yes
  * License: Beerware
  */
+
+/**
+ * `fs` is used to to (de)serialize the map to disk
+ */
+
+const fs = require('fs');
 
 /**
 * Special token denoting the end of a chain
@@ -25,11 +35,13 @@ class Phrasebook {
      *      order = The number of tokens per key, e.g:
      *          phrasebook["Next word is"] // "Amazing" =>
      *          phrasebook["word is Amazing"] // END
+     *      file = Path to the file where the phrasebook is stored on disk
      */
 
-    constructor(order) {
+    constructor(order, file) {
         this.map = new Map();
         this.order = order;
+        this.file = file;
     }
 
     /**
@@ -113,6 +125,73 @@ class Phrasebook {
         }
 
         return result.join(' ');
+    }
+
+    /**
+     * Serialize the map and save it to disk
+     *
+     * TODO: Use a stream rather than dumping the whole thing at once
+     */
+
+    dump() {
+        let result = '{';
+
+        // Used to avoid trailing commas
+        let firstWritten = false;
+
+        this.map.forEach((val, key) => {
+            if(firstWritten) {
+                result += ',';
+            }
+            else {
+                firstWritten = true;
+            }
+
+            result += `${JSON.stringify(key)}:${JSON.stringify(Array.from(val))}`;
+        })
+
+        result += '}';
+
+        fs.writeFile(this.file, result, err => {
+            if(err) {
+                console.log(`Error writing phrasebook file: ${err}`);
+                throw err;
+            }
+
+            console.log(`Successfully wrote phrasebook file (${result.length} bytes))`);
+        });
+    }
+
+    /**
+     * Load the map from disk and deserialize it
+     */
+
+    load() {
+        fs.readFile(this.file, (err, data) => {
+            if(err) {
+                console.log(`Error reading phrasebook file: ${err}`);
+                throw err;
+            }
+
+            this.deserialize(data);
+        });
+    }
+
+    /**
+     * Helper function to actually parse the serialized map.
+     *
+     * The serialized phrasebook is first parsed as a JSON object for easy
+     * iteration, which requires a 2nd copy to be made.
+     *
+     * Params:
+     *      str = The serialized phrasebook map
+     */
+
+    deserialize(str) {
+        const json = JSON.parse(str);
+        Object.keys(json).forEach(key => {
+            this.map.set(key, new Set(json[key]));
+        });
     }
 }
 
