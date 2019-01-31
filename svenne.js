@@ -55,9 +55,11 @@ rtm.on('message', (message) => {
         }
 
         if(message.text.includes(`<@${botUserId}>`)) {
-            rtm.sendMessage(pb.generate(maxPhraseLength), message.channel)
+            const response = pb.generate(maxPhraseLength);
+            rtm.sendMessage(response, message.channel)
                 .then((res) => {
-                    console.log('Message sent: ', res.ts);
+                    // Log the response
+                    console.log(`[${message.ts}] (channel:${message.channel}) ${message.user} response: ${response}`);
                 })
                 .catch(console.error);
         }
