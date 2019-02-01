@@ -66,15 +66,15 @@ class Phrasebook {
             if(key.length == this.order) {
                 // Map can't use array values as keys, so the key is stringified
                 // for storage purposes
-                const key_str = key.join(' ');
+                const keyStr = key.join(' ');
 
-                if(this.map.has(key_str)) {
-                    this.map.get(key_str).add(word);
+                if(this.map.has(keyStr)) {
+                    this.map.get(keyStr).add(word);
                 }
                 else {
                     const val = new Set();
                     val.add(word);
-                    this.map.set(key_str.slice(), val);
+                    this.map.set(keyStr.slice(), val);
                 }
             }
 
